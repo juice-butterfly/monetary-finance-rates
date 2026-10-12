@@ -427,6 +427,9 @@ function derive(){
   return {
     realPolicy: r2(K.omo - K.cpi),
     realLend:   r2(K.lpr1 - K.cpi),
+    realBond1:  r2(K.cgb1  - K.cpi),
+    realBond10: r2(K.cgb10 - K.cpi),
+    lprSpread:  r2(K.lpr5 - K.lpr1),
     termSpread: r2((K.cgb10 - K.cgb1) * 100),
     spreadPol:  r2((K.omo - K.ffr) * 100),
     spread10y:  r2((K.cgb10 - K.ust10) * 100)
@@ -469,6 +472,9 @@ function buildFacts(){
     "美国10年期国债":KEYS.ust10,
     "派生_政策端实际利率":d.realPolicy,
     "派生_信贷端实际利率":d.realLend,
+    "派生_债券端实际利率_1年":d.realBond1,
+    "派生_债券端实际利率_10年":d.realBond10,
+    "派生_LPR期限加点":d.lprSpread,
     "派生_期限利差_bp":d.termSpread,
     "派生_中美利差_政策口径_bp":d.spreadPol,
     "派生_中美利差_10年期口径_bp":d.spread10y,
@@ -818,8 +824,11 @@ function render(){
   }).join("");
 
   document.getElementById("metrics").innerHTML =
-      metric("政策端实际利率", fmt(d.realPolicy), "%", "OMO 减 CPI（费雪方程）", d.realPolicy < 0.5 ? "warn" : "")
-    + metric("信贷端实际成本", fmt(d.realLend), "%", "1Y LPR 减 CPI", d.realLend < 0.5 ? "warn" : "")
+      metric("政策端实际利率", fmt(d.realPolicy), "%", "OMO 7天 减 CPI（费雪方程）", d.realPolicy < 0.5 ? "warn" : "")
+    + metric("信贷端实际成本", fmt(d.realLend), "%", "1 年期 LPR 减 CPI", d.realLend < 0.5 ? "warn" : "")
+    + metric("债券端实际利率", fmt(d.realBond10), "%", "10 年期国债减 CPI", d.realBond10 < 0.5 ? "warn" : "")
+    + metric("短端债券实际利率", fmt(d.realBond1), "%", "1 年期国债减 CPI", d.realBond1 < 0.5 ? "warn" : "")
+    + metric("LPR 期限加点", fmt(d.lprSpread), "%", "5 年期以上减 1 年期", "")
     + metric("10Y−1Y 期限利差", fmt(d.termSpread,0), "bp", "曲线陡平", d.termSpread < 50 ? "warn" : "")
     + metric("中美利差 · 政策口径", fmt(d.spreadPol,0), "bp", "中国 OMO 减美国 FFR", d.spreadPol < -150 ? "bad" : "")
     + metric("中美利差 · 10 年期", fmt(d.spread10y,0), "bp", "中美国债 10Y 之差", d.spread10y < -150 ? "bad" : "")
@@ -861,6 +870,7 @@ var SYS_PROMPT = [
 "",
 "【硬约束】",
 "- 只能使用【事实包】中给出的数值，绝对不得引入任何其他数字（包括不得自行推算新数字）。",
+"- 需要某个比率、差值或实际利率时，直接引用事实包里已经算好的「派生_」字段；如果事实包里没有你要的那一项，就改用文字描述，不要写出数字。",
 "- 引用理论时必须使用上述课程术语，不要用外部学派的替代叫法。",
 "- 每段 2 到 4 句，语言平实，不要排比，不要空话。",
 "- 局限一段必须指出所用理论的假设在当下是否成立。"
