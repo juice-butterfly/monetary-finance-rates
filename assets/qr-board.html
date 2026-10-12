@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>扫码展板 · 利率传导诊断台</title>
+<style>
+:root{
+  --bg:#F6F4F0;--surface:#FFFFFF;--surface2:#FBFAF7;
+  --line:#E5E0D8;--line2:#D3CDC2;
+  --ink:#1F2328;--ink2:#5A616B;--ink3:#8D949E;
+  --amber:#A9762F;--amber2:#C08F3E;--amber-bg:#FAF3E4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1480px;overflow:hidden}
+body{
+  background:radial-gradient(1000px 380px at 16% -14%,#FFFFFF,transparent 72%),var(--bg);
+  color:var(--ink);
+  font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  padding:56px 64px 44px;display:flex;flex-direction:column;
+}
+.eyebrow{font-size:13.5px;color:var(--ink3);letter-spacing:.6px}
+h1{font-size:46px;font-weight:600;letter-spacing:1px;margin:12px 0 0}
+h1 .sub{font-size:19px;font-weight:400;color:var(--ink3);letter-spacing:0;margin-left:14px}
+.rule{height:1px;background:var(--line);margin:26px 0 0}
+.lede{font-size:17px;color:var(--ink2);margin-top:22px;line-height:1.85;max-width:900px}
+.lede b{color:var(--ink);font-weight:600}
+.qrwrap{
+  margin:34px auto 0;background:var(--surface);border:1px solid var(--line);
+  border-radius:20px;padding:30px 30px 24px;display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 2px 22px rgba(31,35,40,.05);
+}
+.qrbox{width:560px;height:560px}
+.qrbox svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
+.qrcap{margin-top:20px;font-size:22px;font-weight:600;letter-spacing:.4px}
+.qrurl{margin-top:9px;font-size:14.5px;color:var(--ink3);letter-spacing:.2px;
+  font-family:ui-monospace,Consolas,monospace;word-break:break-all;text-align:center}
+.steps{margin-top:34px;display:flex;gap:16px}
+.step{flex:1;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:16px 17px}
+.step .n{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;background:var(--amber);color:#fff;
+  font-size:14px;font-weight:600;margin-bottom:10px;
+}
+.step .t{font-size:15.5px;font-weight:600;margin-bottom:6px}
+.step .d{font-size:13px;color:var(--ink2);line-height:1.68}
+.foot{margin-top:auto;padding-top:22px;font-size:12.5px;color:var(--ink3);line-height:1.7;border-top:1px solid var(--line)}
+.foot b{color:var(--ink2);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="eyebrow">中南财经政法大学 · 货币金融学 · 利率部分 · 小组展示</div>
+<h1>利率传导诊断台<span class="sub">今天中国的利率，卡在哪一环</span></h1>
+<div class="rule"></div>
+
+<p class="lede">
+把课程知识做成一台<b>可推导</b>的诊断台：参数随便拖，传导链当场变色；
+AI 只负责组织语言，<b>每个数字都能回查到出处</b>，编不出来的会被当场标红。
+</p>
+
+<div class="qrwrap">
+  <div class="qrbox"><svg viewBox="0 0 49 49" preserveAspectRatio="xMidYMid meet" class="segno"><path fill="#fff" d="M0 0h49v49h-49z"/><path class="qrline" stroke="#1f2328" d="M4 4.5h7m3 0h6m1 0h2m2 0h1m3 0h4m5 0h7m-41 1h1m5 0h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m2 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m3 0h1m2 0h1m1 0h1m3 0h3m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m4 0h1m2 0h3m5 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h2m1 0h2m1 0h1m2 0h1m4 0h1m1 0h5m2 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h2m1 0h2m2 0h5m2 0h1m4 0h3m2 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h1m1 0h6m2 0h1m1 0h4m3 0h3m-26 1h4m1 0h1m1 0h3m1 0h3m2 0h2m2 0h4m1 0h1m2 0h1m1 0h2m3 0h1m-40 1h2m1 0h3m3 0h6m6 0h1m3 0h3m1 0h1m4 0h4m2 0h1m-41 1h1m1 0h1m1 0h7m1 0h1m1 0h5m4 0h3m1 0h1m2 0h1m1 0h3m1 0h1m3 0h1m-40 1h1m1 0h1m4 0h4m1 0h1m1 0h2m2 0h1m2 0h1m1 0h4m1 0h1m1 0h2m3 0h2m2 0h1m-41 1h2m2 0h5m2 0h2m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h2m1 0h1m4 0h1m-41 1h1m1 0h1m1 0h1m2 0h7m2 0h2m1 0h3m2 0h3m3 0h1m3 0h3m1 0h1m1 0h1m-41 1h2m2 0h1m1 0h1m2 0h1m4 0h3m4 0h1m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m2 0h1m1 0h2m-39 1h2m1 0h1m2 0h1m2 0h2m2 0h1m3 0h2m4 0h1m3 0h1m1 0h1m5 0h1m1 0h1m-40 1h3m3 0h1m1 0h5m1 0h4m1 0h1m2 0h6m1 0h1m1 0h2m2 0h1m-36 1h1m3 0h2m2 0h1m5 0h2m2 0h2m1 0h4m2 0h1m2 0h1m2 0h4m2 0h2m-38 1h1m2 0h1m2 0h1m7 0h2m1 0h1m1 0h4m1 0h1m1 0h2m2 0h3m2 0h1m1 0h1m-38 1h1m6 0h1m1 0h1m2 0h1m1 0h3m2 0h4m1 0h3m1 0h3m1 0h1m1 0h1m1 0h1m-40 1h3m2 0h4m2 0h2m1 0h1m2 0h4m2 0h2m1 0h2m1 0h1m3 0h1m3 0h1m-35 1h1m7 0h2m1 0h3m1 0h2m1 0h4m1 0h3m1 0h1m3 0h3m3 0h1m-41 1h2m2 0h1m1 0h2m1 0h2m4 0h2m1 0h1m1 0h1m3 0h2m1 0h4m4 0h2m1 0h1m1 0h1m-38 1h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1m2 0h3m1 0h2m1 0h1m1 0h1m1 0h2m2 0h1m-38 1h1m2 0h2m1 0h1m1 0h1m1 0h6m3 0h3m4 0h1m2 0h2m3 0h1m2 0h1m-41 1h1m1 0h1m4 0h1m2 0h5m5 0h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-41 1h4m1 0h3m1 0h2m4 0h8m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m-40 1h2m2 0h1m1 0h4m2 0h4m1 0h1m3 0h2m1 0h1m2 0h5m1 0h1m1 0h2m1 0h1m-40 1h1m1 0h3m1 0h3m4 0h1m1 0h4m7 0h1m2 0h1m9 0h1m-40 1h3m7 0h3m1 0h1m3 0h1m3 0h2m1 0h3m2 0h1m3 0h3m1 0h1m1 0h1m-38 1h2m1 0h2m1 0h2m4 0h1m2 0h1m1 0h2m2 0h1m1 0h2m1 0h1m2 0h2m1 0h1m4 0h1m-38 1h3m1 0h4m4 0h1m1 0h6m5 0h3m1 0h2m3 0h1m2 0h1m-41 1h2m1 0h4m2 0h1m1 0h3m5 0h2m1 0h1m1 0h3m1 0h2m2 0h5m2 0h1m-32 1h2m1 0h1m2 0h5m2 0h1m3 0h4m2 0h2m3 0h2m2 0h1m-41 1h7m1 0h1m1 0h7m2 0h3m2 0h1m2 0h6m1 0h1m1 0h2m2 0h1m-41 1h1m5 0h1m1 0h1m2 0h1m5 0h6m1 0h2m2 0h5m3 0h2m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h2m2 0h1m1 0h2m1 0h7m1 0h2m-41 1h1m1 0h3m1 0h1m8 0h1m1 0h3m1 0h1m2 0h6m5 0h1m1 0h4m-41 1h1m1 0h3m1 0h1m2 0h2m4 0h1m2 0h2m2 0h1m1 0h1m2 0h1m1 0h1m1 0h3m3 0h1m1 0h2m-41 1h1m5 0h1m3 0h1m3 0h5m1 0h1m1 0h1m1 0h7m1 0h1m1 0h2m1 0h1m1 0h2m-41 1h7m4 0h1m6 0h2m1 0h3m1 0h3m1 0h1m2 0h1m1 0h4m1 0h1"/></svg></div>
+  <div class="qrcap">扫码打开 · 手机也能用</div>
+  <div class="qrurl">https://juice-butterfly.github.io/monetary-finance-rates/</div>
+</div>
+
+<div class="steps">
+  <div class="step">
+    <div class="n">1</div>
+    <div class="t">拖参数</div>
+    <div class="d">左侧九个参数可直接拖、也可填数字。看「传导链」哪一环被点亮变琥珀色。</div>
+  </div>
+  <div class="step">
+    <div class="n">2</div>
+    <div class="t">切图表</div>
+    <div class="d">利率走廊、中美对照、收益率曲线、久期敏感性 —— 都是真算出来的。</div>
+  </div>
+  <div class="step">
+    <div class="n">3</div>
+    <div class="t">点生成解读</div>
+    <div class="d">AI 按课程框架输出五段：现象 · 理论 · 机制 · 含义 · 局限，底部校验条核验数字。</div>
+  </div>
+</div>
+
+<div class="foot">
+<b>口径来源优先级：</b>陈思翀老师课件（第三讲）＞《中国金融学》（西南财经大学编写组）＞ 朱新蓉《货币金融学》第五版（仅作章节骨架）。
+利率走廊上下限为示意口径。
+</div>
+
+</body>
+</html>
