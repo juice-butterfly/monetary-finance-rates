@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>利率传导诊断台 · 货币金融学</title>
+<style>
+:root{
+--bg:#F6F4F0;--surface:#FFFFFF;--surface2:#FBFAF7;
+--line:#E5E0D8;--line2:#D3CDC2;
+--ink:#1F2328;--ink2:#5A616B;--ink3:#8D949E;
+--amber:#A9762F;--amber2:#C08F3E;--amber-bg:#FAF3E4;
+--us:#9AA6B2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+background:radial-gradient(900px 340px at 14% -12%,#FFFFFF,transparent 72%),var(--bg);
+color:var(--ink);font:14px/1.62 "Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+padding:18px 22px 44px;min-height:100vh;
+}
+header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px}
+h1{font-size:19px;font-weight:600;letter-spacing:.3px}
+h1 .sub{font-size:12px;color:var(--ink3);font-weight:400;margin-left:10px;letter-spacing:0}
+.hd-right{display:flex;align-items:center;gap:9px}
+.stamp{font-size:12px;color:var(--ink2);border:1px solid var(--line2);
+border-radius:20px;padding:3px 12px;background:var(--surface)}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line2);
+background:var(--surface);color:var(--ink);padding:7px 14px;transition:.15s}
+button:hover{border-color:var(--ink3);background:var(--surface2)}
+button.primary{background:var(--ink);border-color:var(--ink);color:#FFFFFF;font-weight:600;padding:9px 20px}
+button.primary:hover{background:#33383D}
+button:disabled{opacity:.4;cursor:not-allowed}
+
+/* 顶部 tab 栏 */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:-4px 0 18px;flex-wrap:wrap}
+.tab{border:none;background:none;border-radius:0;padding:10px 16px;color:var(--ink2);
+font-size:13.5px;border-bottom:2px solid transparent;margin-bottom:-1px;
+display:inline-flex;align-items:center;gap:7px}
+.tab:hover{background:transparent;color:var(--ink);border-bottom-color:var(--line2)}
+.tab.active{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+.badge{display:inline-block;min-width:18px;height:18px;line-height:18px;text-align:center;
+font-size:11px;font-weight:600;border-radius:9px;background:var(--line);color:var(--ink2);padding:0 5px}
+.badge.hot,.tab.active .badge{background:var(--amber-bg);color:var(--amber)}
+.tabpane{display:none}
+.tabpane.show{display:flex;flex-direction:column;gap:18px}
+
+main{display:grid;grid-template-columns:344px minmax(0,1fr);gap:18px;align-items:start}
+body.wide main{grid-template-columns:minmax(0,1fr)}
+body.wide .side{display:none}
+
+.side{position:sticky;top:18px;display:flex;flex-direction:column;gap:14px;
+max-height:calc(100vh - 30px);overflow-y:auto;overscroll-behavior:contain;
+scrollbar-width:thin;scrollbar-color:var(--line2) transparent;padding-right:2px}
+.side::-webkit-scrollbar{width:6px}
+.side::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+.side::-webkit-scrollbar-track{background:transparent}
+.side .panel{flex:none}
+.side .panel>h2{padding:9px 14px}
+.side .pbody{padding:12px 14px 14px}
+.side .slider{margin-bottom:11px}
+.side .slabel{font-size:12px;line-height:1.3}
+.side .srow{margin-bottom:4px}
+.side .subhead{margin:12px 0 7px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+box-shadow:0 1px 2px rgba(31,35,40,.035)}
+.panel>h2{font-size:13px;font-weight:500;color:var(--ink2);padding:11px 16px;
+border-bottom:1px solid var(--line);letter-spacing:.3px;flex:none}
+.panel>h2 .bar{display:inline-block;width:3px;height:13px;background:var(--ink);
+border-radius:2px;margin-right:8px;vertical-align:-1px}
+.pbody{padding:14px 16px 16px}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+.subhead{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2);margin:18px 0 10px}
+.subhead:first-child{margin-top:0}
+.subhead .b{width:4px;height:13px;border-radius:2px;background:var(--ink);flex:none}
+.hint{font-size:12px;color:var(--ink3);line-height:1.65}
+.scrollhint{display:none}
+
+/* 演示提示条 */
+.tipbar{display:flex;align-items:flex-start;gap:10px;margin:-6px 0 16px;padding:8px 12px;
+border:1px solid var(--line);border-radius:9px;background:var(--surface2);
+font-size:12.5px;color:var(--ink2);line-height:1.55}
+.tipbar b{color:var(--ink);font-weight:600;margin-right:2px}
+.tipbar.gone{display:none}
+.tipx{margin-left:auto;flex:none;border:none;background:none;color:var(--ink3);
+padding:0 3px;font-size:16px;line-height:1.1}
+.tipx:hover{background:transparent;border:none;color:var(--ink)}
+.pagefoot{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);
+font-size:11.5px;color:var(--ink3);line-height:1.75}
+
+/* 参数 */
+.slider{margin-bottom:15px}
+.slider:last-child{margin-bottom:0}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.slabel{flex:1 1 auto;min-width:0;font-size:12.5px;color:var(--ink2);line-height:1.35}
+.snumwrap{display:inline-flex;align-items:baseline;gap:3px;flex:none}
+.snum{width:72px;font:inherit;font-size:13px;font-weight:600;text-align:right;padding:3px 6px;
+border-radius:6px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);
+font-variant-numeric:tabular-nums;outline:none}
+.snum:focus{border-color:var(--ink)}
+.snum::-webkit-outer-spin-button,.snum::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.snum{-moz-appearance:textfield}
+.sunit{font-size:11.5px;color:var(--ink3)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;
+background:var(--line2);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+border-radius:50%;background:var(--ink);cursor:pointer;border:2px solid #fff;
+box-shadow:0 0 0 1px var(--line2)}
+
+/* 图表 */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chartbox{background:var(--surface2);border:1px solid var(--line);border-radius:11px;
+padding:11px 13px 6px;min-width:0}
+.chartbox.wide{grid-column:1/-1}
+.ctitle{font-size:12px;color:var(--ink2);margin-bottom:4px}
+.ctitle i{font-style:normal;color:var(--ink3);margin-left:6px;font-size:11.5px}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:inherit}
+.ct{fill:#8D949E;font-size:12.5px}
+.ct2{fill:#A9AFB8;font-size:11.5px}
+.cl{fill:#5A616B;font-size:13px}
+.cv{font-size:12.5px;font-weight:600}
+.cf1{fill:#1F2328;font-size:14.5px;font-weight:600}
+.cf2{font-size:16px;font-weight:700}
+.cbig{font-size:17px;font-weight:700}
+
+/* 规则 */
+.rule{display:grid;grid-template-columns:58px 132px minmax(0,1fr);gap:10px;align-items:start;
+padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface2);
+font-size:12.5px;margin-bottom:7px}
+.rule:last-child{margin-bottom:0}
+.rule.on{border-color:rgba(169,118,47,.45);background:var(--amber-bg)}
+.rtag{font-size:11px;text-align:center;padding:2px 0;border-radius:5px;background:var(--surface);
+color:var(--ink3);border:1px solid var(--line2)}
+.rule.on .rtag{background:rgba(169,118,47,.14);color:var(--amber);border-color:rgba(169,118,47,.45);font-weight:600}
+.rname{color:var(--ink);font-weight:600}
+.rule.on .rname{color:var(--amber)}
+.rtxt{color:var(--ink2);line-height:1.55}
+
+/* 指标卡 */
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.metric{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.metric .mh{font-size:11.5px;color:var(--ink3);margin-bottom:5px}
+.metric .mv{font-size:20px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.metric .mv small{font-size:12px;font-weight:400;color:var(--ink3);margin-left:3px}
+.metric .mnote{font-size:11px;color:var(--ink3);margin-top:4px}
+.metric.warn{border-color:rgba(169,118,47,.5)}
+.metric.warn .mv{color:var(--amber)}
+.metric.bad{border-color:var(--ink)}
+.metric.bad .mv{color:var(--ink)}
+
+/* 公式 */
+.fcard{background:var(--surface2);border:1px solid var(--line);border-radius:11px;
+padding:13px 16px;margin-bottom:11px}
+.fcard:last-child{margin-bottom:0}
+.fname{font-size:12.5px;color:var(--amber);font-weight:600;margin-bottom:9px;
+padding-left:9px;border-left:3px solid var(--ink);line-height:1.4}
+.fname i{font-style:normal;color:var(--ink3);font-weight:400;margin-left:8px;font-size:11.5px}
+.formula{font-family:"Cambria Math","Times New Roman",Georgia,serif;
+font-size:19px;color:var(--ink);text-align:center;padding:10px 6px;letter-spacing:.3px;
+line-height:1.9}
+.formula sub,.formula sup{font-size:.66em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+margin:0 5px;font-size:.82em}
+.frac .fnum{border-bottom:1.2px solid var(--ink2);padding:0 6px 2px}
+.frac .fden{padding:2px 6px 0}
+.fdesc{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.fcalc{margin-top:8px;font-size:12.5px;color:var(--ink3);line-height:1.6;
+border-top:1px dashed var(--line2);padding-top:8px}
+.fcalc b{color:var(--amber);font-variant-numeric:tabular-nums}
+
+/* AI */
+.airc{font-size:12.5px;color:var(--ink3);margin-bottom:11px;line-height:1.6}
+.airc b{color:var(--ink)}
+.aiout{margin-top:12px;display:flex;flex-direction:column;gap:10px;min-height:60px}
+.seg{background:var(--surface2);border:1px solid var(--line);border-left:3px solid var(--ink);
+border-radius:0 9px 9px 0;padding:11px 14px}
+.seg .sh{font-size:12px;font-weight:600;color:var(--amber);margin-bottom:5px;letter-spacing:.3px}
+.seg .sb{font-size:13px;color:var(--ink);line-height:1.7}
+.seg.lim{border-left-color:var(--amber)}
+.num-ok{background:#EFE9DA;color:var(--ink);font-weight:600;border-radius:3px;padding:0 3px}
+.num-bad{background:var(--ink);color:#FFFFFF;border-radius:3px;padding:0 3px;font-weight:600}
+.vbar{margin-top:12px;font-size:12px;padding:9px 13px;border-radius:9px;
+border:1px solid var(--line);background:var(--surface2);color:var(--ink2)}
+.vbar .ok{color:var(--ink);font-weight:600}
+.vbar .bad{background:var(--ink);color:#fff;font-weight:600;border-radius:3px;padding:0 4px}
+.err{color:#7A4E12;background:var(--amber-bg);border:1px solid rgba(169,118,47,.4);
+border-radius:8px;padding:9px 12px;font-size:12.5px;margin-top:10px;line-height:1.6}
+
+/* 弹窗 */
+.mask{position:fixed;inset:0;background:rgba(31,35,40,.42);display:none;
+align-items:center;justify-content:center;z-index:99;padding:20px}
+.mask.show{display:flex}
+.modal{width:min(520px,100%);background:var(--surface);border:1px solid var(--line2);
+border-radius:14px;padding:22px 24px;box-shadow:0 12px 40px rgba(31,35,40,.16)}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.modal p{font-size:12.5px;color:var(--ink2);margin-bottom:16px;line-height:1.65}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;color:var(--ink2);margin-bottom:5px}
+.field input{width:100%;font:inherit;font-size:13px;padding:8px 11px;border-radius:8px;
+border:1px solid var(--line2);background:var(--surface2);color:var(--ink);outline:none}
+.field input:focus{border-color:var(--ink)}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ink3);margin-right:6px}
+.dot.on{background:var(--amber2)}
+
+@media(max-width:1080px){
+main{grid-template-columns:1fr;gap:14px}
+.side{position:static;max-height:none;overflow:visible;padding-right:0}
+.charts{grid-template-columns:1fr}
+.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:900px){
+body{padding:14px 14px 36px}
+h1{font-size:17px}
+h1 .sub{display:block;margin:3px 0 0;font-size:11.5px}
+.hd-right{flex-wrap:wrap}
+.stamp{font-size:11px;padding:2px 10px}
+button{padding:6px 12px;font-size:13px}
+.tabs{margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tipbar{font-size:11.5px;padding:7px 10px;margin-bottom:12px}
+.pagefoot{font-size:11px}
+.tab{padding:9px 12px;font-size:13px;white-space:nowrap}
+.chartbox{padding:9px 10px 4px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chartbox .chart{min-width:560px}
+.chartbox.wide .chart{min-width:900px}
+.chartbox.wide::after{content:"← 左右滑动查看完整图表 →";display:block;text-align:center;
+font-size:11px;color:var(--ink3);padding:2px 0 4px}
+#flow{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#flow .chart{min-width:900px}
+.scrollhint{display:block;text-align:center;font-size:11px;color:var(--ink3);padding:2px 0 6px}
+.rule{grid-template-columns:54px minmax(0,1fr);gap:5px 10px;padding:9px 11px}
+.rtxt{grid-column:1/-1}
+.formula{font-size:17px}
+.modal{padding:18px 18px}
+.mask{padding:14px}
+}
+@media(max-width:560px){
+h1{font-size:16px}
+.tab{padding:8px 10px;font-size:12.5px}
+.badge{min-width:16px;height:16px;line-height:16px;font-size:10px;padding:0 4px}
+.metrics{grid-template-columns:1fr}
+.metric .mv{font-size:18px}
+.fcard{padding:12px 13px}
+.formula{font-size:16px}
+.chartbox .chart{min-width:520px}
+.chartbox.wide .chart{min-width:820px}
+#flow .chart{min-width:820px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>利率传导诊断台<span class="sub">货币金融学 · 利率部分</span></h1>
+<div class="hd-right">
+<span class="stamp">基准情形 · 2026 年 10 月</span>
+<button id="btnWide">宽屏</button>
+<button id="btnCfg"><span class="dot" id="cfgDot"></span>模型设置</button>
+</div>
+</header>
+
+<nav class="tabs" role="tablist">
+<button class="tab active" data-tab="diag" role="tab">诊断总览<span class="badge" id="tabBadge">0</span></button>
+<button class="tab" data-tab="charts" role="tab">关键图表</button>
+<button class="tab" data-tab="formulas" role="tab">核心公式</button>
+<button class="tab" data-tab="ai" role="tab">AI 解读</button>
+</nav>
+
+<div class="tipbar" id="tipbar">
+<span><b>演示流程</b>　① 拖参数 → ② 看传导链哪一环变色 → ③ 切 tab 看图表联动 → ④ 点「生成解读」，再指校验条说明可追溯</span>
+<button class="tipx" id="tipX" title="隐藏提示条">×</button>
+</div>
+
+<main>
+<aside class="side">
+<section class="panel">
+<h2><span class="bar"></span>参数控制 · 可拖动，也可直接输入</h2>
+<div class="pbody" id="sliders"></div>
+</section>
+</aside>
+
+<section class="col">
+
+<div class="tabpane show" data-pane="diag">
+<section class="panel">
+<h2><span class="bar"></span>传导链诊断 · 逐环检查</h2>
+<div class="pbody">
+<div id="flow"></div>
+<div class="scrollhint">← 左右滑动查看完整传导链 →</div>
+<div class="subhead"><span class="b"></span>规则命中明细</div>
+<div id="rules"></div>
+<div class="subhead"><span class="b"></span>派生指标</div>
+<div class="metrics" id="metrics"></div>
+</div>
+</section>
+</div>
+
+<div class="tabpane" data-pane="charts">
+<section class="panel">
+<h2><span class="bar"></span>关键图表</h2>
+<div class="pbody">
+<div class="charts">
+<div class="chartbox wide">
+<div class="ctitle">图 1 · 利率走廊与政策利率位置<i>走廊上下限为示意口径</i></div>
+<div id="cCorridor"></div>
+</div>
+<div class="chartbox">
+<div class="ctitle">图 2 · 中美利率水平对照<i>由高到低</i></div>
+<div id="cLevels"></div>
+</div>
+<div class="chartbox">
+<div class="ctitle">图 3 · 中美利差（两个口径）<i>负值为中国低于美国</i></div>
+<div id="cSpread"></div>
+</div>
+<div class="chartbox">
+<div class="ctitle">图 4 · 收益率曲线<i>政策利率 → 1 年 → 10 年</i></div>
+<div id="cYield"></div>
+</div>
+<div class="chartbox">
+<div class="ctitle">图 5 · 利率变动与债券回报率<i>持有 1 年，平价发行示例债券</i></div>
+<div id="cDur"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+
+<div class="tabpane" data-pane="formulas">
+<section class="panel">
+<h2><span class="bar"></span>核心公式 · 课程口径</h2>
+<div class="pbody" id="formulas"></div>
+</section>
+</div>
+
+<div class="tabpane" data-pane="ai">
+<section class="panel">
+<h2><span class="bar"></span>AI 结构化解读</h2>
+<div class="pbody">
+<div class="airc" id="airc"></div>
+<button class="primary" id="btnRun">生成解读</button>
+<button id="btnOff" style="margin-left:8px">看离线示例</button>
+<div class="aiout" id="aiout"></div>
+<div class="vbar" id="vbar" style="display:none"></div>
+<div class="err" id="err" style="display:none"></div>
+</div>
+</section>
+</div>
+
+</section>
+</main>
+
+<footer class="pagefoot">
+口径来源优先级：陈思翀老师课件（第三讲）＞《中国金融学》（西南财经大学编写组）＞ 朱新蓉《货币金融学》第五版（仅作章节骨架）；口径冲突时以前两者为准。利率走廊上下限为示意口径；图 5 为「票面利率＝当前 10 年期国债收益率、平价发行」的示例债券测算值。
+</footer>
+
+<div class="mask" id="mask">
+<div class="modal">
+<h3>模型设置</h3>
+<p>已内置智谱 GLM-4-Flash，开箱即用。也可以换成任何 OpenAI 兼容接口——改地址和模型名即可。
+密钥只存在本机浏览器里，不会上传到别处。</p>
+<div class="field">
+<label>接口地址 Base URL</label>
+<input id="cfgBase" placeholder="https://open.bigmodel.cn/api/paas/v4">
+</div>
+<div class="field">
+<label>模型名</label>
+<input id="cfgModel" placeholder="glm-4-flash">
+</div>
+<div class="field">
+<label>API Key（留空则使用内置 Key）</label>
+<input id="cfgKey" type="password" placeholder="粘贴你自己的 API Key">
+</div>
+<div class="acts">
+<button id="btnClear">恢复内置</button>
+<button class="primary" id="btnSave">保存</button>
+</div>
+</div>
+</div>
+
+<script>
+"use strict";
+
+/* ===== 内置智谱 Key（换 Key 只改这一行）===== */
+var BUILTIN_KEY   = "a220f79f085c4dd0a03cae230adad61e.MqGxpp2bUQEK4zRV";
+var BUILTIN_BASE  = "https://open.bigmodel.cn/api/paas/v4";
+var BUILTIN_MODEL = "glm-4-flash";
+
+/* ===== 配色常量（浅色主题：中国=墨，美国=灰蓝，唯一强调色=暖棕金）===== */
+var C_CN = "#2F3437", C_US = "#9AA6B2", C_AMBER = "#C08F3E",
+    C_INK = "#1F2328", C_GRID = "#EDE9E1", C_TX2 = "#8D949E", C_TX3 = "#A9AFB8";
+
+var PARAMS = [
+  {k:"omo",   label:"中国 · 公开市场 7 天期逆回购利率", unit:"%", min:0.5, max:3.0,  step:0.05, val:1.40},
+  {k:"lpr1",  label:"中国 · 1 年期 LPR",               unit:"%", min:1.5, max:5.0,  step:0.05, val:3.00},
+  {k:"lpr5",  label:"中国 · 5 年期以上 LPR",            unit:"%", min:1.5, max:5.5,  step:0.05, val:3.50},
+  {k:"nim",   label:"中国 · 商业银行净息差",             unit:"%", min:0.8, max:2.6,  step:0.05, val:1.40},
+  {k:"cpi",   label:"中国 · CPI 同比",                  unit:"%", min:-1.0,max:4.0,  step:0.1,  val:1.20},
+  {k:"cgb10", label:"中国 · 10 年期国债收益率",          unit:"%", min:1.0, max:4.0,  step:0.01, val:1.68},
+  {k:"cgb1",  label:"中国 · 1 年期国债收益率",           unit:"%", min:0.5, max:3.5,  step:0.01, val:1.26},
+  {k:"ffr",   label:"美国 · 联邦基金利率目标区间中值",     unit:"%", min:0.0, max:6.5,  step:0.125,val:3.875},
+  {k:"ust10", label:"美国 · 10 年期国债收益率",          unit:"%", min:0.5, max:6.0,  step:0.01, val:4.24}
+];
+
+var KEYS = {};
+PARAMS.forEach(function(p){ KEYS[p.k] = p.val; });
+
+function decOf(step){ return step >= 0.1 ? 1 : (step >= 0.01 ? 2 : 3); }
+function r2(v){ return Math.round(v*100)/100; }
+function fmt(v,d){ return Number(v).toFixed(d===undefined?2:d); }
+
+function readCfg(){
+  var c = {};
+  try{ c = JSON.parse(localStorage.getItem("rate_lab_cfg") || "{}"); }catch(e){ c = {}; }
+  if(!c.base)  c.base  = BUILTIN_BASE;
+  if(!c.model) c.model = BUILTIN_MODEL;
+  if(!c.key)   c.key   = BUILTIN_KEY;
+  return c;
+}
+function saveCfg(c){ try{ localStorage.setItem("rate_lab_cfg", JSON.stringify(c)); }catch(e){} }
+function clearCfg(){ try{ localStorage.removeItem("rate_lab_cfg"); }catch(e){} }
+
+function derive(){
+  var K = KEYS;
+  return {
+    realPolicy: r2(K.omo - K.cpi),
+    realLend:   r2(K.lpr1 - K.cpi),
+    termSpread: r2((K.cgb10 - K.cgb1) * 100),
+    spreadPol:  r2((K.omo - K.ffr) * 100),
+    spread10y:  r2((K.cgb10 - K.ust10) * 100)
+  };
+}
+
+function evalRules(d){
+  var K = KEYS, R = [];
+  R.push({id:"息差约束", on:K.nim < 1.50,
+    txt: K.nim < 1.50
+      ? "净息差 " + fmt(K.nim) + "% 低于 1.50%，报价行压缩加点的空间被负债成本锁住，LPR 继续下行缺乏内生动力"
+      : "净息差 " + fmt(K.nim) + "% 尚有余地，报价行具备下调加点的空间"});
+  R.push({id:"政策端实际利率近零", on:d.realPolicy < 0.5,
+    txt: d.realPolicy < 0.5
+      ? "政策利率扣减 CPI 后的实际水平仅 " + fmt(d.realPolicy) + "%，接近零下限，进一步降息的边际效用有限"
+      : "政策端实际利率 " + fmt(d.realPolicy) + "%，仍有一定压降空间"});
+  R.push({id:"中美利差倒挂", on:d.spreadPol < -150,
+    txt: d.spreadPol < -150
+      ? "政策利率口径中美利差 " + fmt(d.spreadPol,0) + "bp，处于深度倒挂，汇率与跨境资本流动构成外部约束"
+      : "政策利率口径中美利差 " + fmt(d.spreadPol,0) + "bp，外部约束相对温和"});
+  R.push({id:"曲线偏平", on:d.termSpread < 50,
+    txt: d.termSpread < 50
+      ? "10Y−1Y 期限利差仅 " + fmt(d.termSpread,0) + "bp，曲线偏平，反映市场对中长期宽松的预期"
+      : "10Y−1Y 期限利差 " + fmt(d.termSpread,0) + "bp，曲线形态正常"});
+  return R;
+}
+
+function buildFacts(){
+  var d = derive(), R = evalRules(d);
+  return {
+    "观察时点":"2026 年 10 月（基准情形，可按需修改）",
+    "政策利率_OMO7天":KEYS.omo,
+    "LPR_1年期":KEYS.lpr1,
+    "LPR_5年期以上":KEYS.lpr5,
+    "商业银行净息差":KEYS.nim,
+    "CPI同比":KEYS.cpi,
+    "中国10年期国债":KEYS.cgb10,
+    "中国1年期国债":KEYS.cgb1,
+    "美国联邦基金利率":KEYS.ffr,
+    "美国10年期国债":KEYS.ust10,
+    "派生_政策端实际利率":d.realPolicy,
+    "派生_信贷端实际利率":d.realLend,
+    "派生_期限利差_bp":d.termSpread,
+    "派生_中美利差_政策口径_bp":d.spreadPol,
+    "派生_中美利差_10年期口径_bp":d.spread10y,
+    "命中规则":R.filter(function(x){return x.on;}).map(function(x){return x.id;}),
+    "规则明细":R.map(function(x){return (x.on?"[命中] ":"[未命中] ") + x.txt;})
+  };
+}
+
+/* ---------- 图 1：利率走廊 ---------- */
+function svgCorridor(){
+  var K = KEYS;
+  var low = 0.35, mid = K.omo, high = r2(K.omo + 0.55);
+  var ymax = Math.max(high + 0.55, 2.4);
+  var W = 1180, H = 300, x0 = 128, x1 = 782, y0 = 42, y1 = 232;
+  function Y(v){ return y1 - (v / ymax) * (y1 - y0); }
+  var a = [];
+  a.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="利率走廊示意图">');
+  a.push('<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0%" stop-color="' + C_AMBER + '" stop-opacity="0.20"/>'
+    + '<stop offset="100%" stop-color="' + C_AMBER + '" stop-opacity="0.03"/></linearGradient></defs>');
+  for(var v = 0; v <= ymax + 0.001; v += 0.5){
+    var yy = Y(v);
+    a.push('<line x1="' + x0 + '" y1="' + yy + '" x2="' + x1 + '" y2="' + yy + '" stroke="' + C_GRID + '" stroke-width="1"/>');
+    a.push('<text x="' + (x0 - 14) + '" y="' + (yy + 4) + '" text-anchor="end" class="ct">' + v.toFixed(1) + '%</text>');
+  }
+  a.push('<rect x="' + x0 + '" y="' + Y(high) + '" width="' + (x1 - x0) + '" height="' + (Y(low) - Y(high)) + '" fill="url(#cg)"/>');
+  var drH = 0.14;
+  a.push('<rect x="' + x0 + '" y="' + Y(mid + drH) + '" width="' + (x1 - x0) + '" height="' + (Y(mid - drH) - Y(mid + drH)) + '" fill="rgba(154,166,178,.45)"/>');
+  a.push('<text x="' + (x0 + 14) + '" y="' + (Y(mid + drH) - 6) + '" class="ct2">DR007 运行区间（始终位于走廊之内）</text>');
+  a.push('<line x1="' + x0 + '" y1="' + (y0 - 8) + '" x2="' + x0 + '" y2="' + (y1 + 12) + '" stroke="#D3CDC2" stroke-width="1"/>');
+  a.push('<text x="' + x0 + '" y="' + (y1 + 36) + '" text-anchor="middle" class="ct">利率水平</text>');
+  function hline(val, color, dash, w, label){
+    var yy = Y(val);
+    a.push('<line x1="' + x0 + '" y1="' + yy + '" x2="' + x1 + '" y2="' + yy + '" stroke="' + color + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="7 5"' : '') + '/>');
+    a.push('<circle cx="' + x1 + '" cy="' + yy + '" r="3.5" fill="' + color + '"/>');
+    a.push('<text x="' + (x1 + 14) + '" y="' + (yy + 4.5) + '" class="cv" fill="' + color + '">' + label + '</text>');
+  }
+  hline(high, C_AMBER, true, 1.8, '走廊上限 · 7 天 SLF（示意） ' + fmt(high) + '%');
+  hline(mid,  C_INK,   false, 2.6, '走廊中枢 · OMO 7 天逆回购 ' + fmt(mid) + '%');
+  hline(low,  C_US,    true, 1.8, '走廊下限 · 超额准备金利率 ' + fmt(low) + '%');
+  a.push('</svg>');
+  return a.join("");
+}
+
+/* ---------- 图 2：中美利率水平对照 ---------- */
+function svgLevels(){
+  var items = [
+    {n:"美国 10 年期国债", v:KEYS.ust10, us:true},
+    {n:"美国 联邦基金利率", v:KEYS.ffr, us:true},
+    {n:"中国 10 年期国债", v:KEYS.cgb10, us:false},
+    {n:"中国 OMO 7 天",   v:KEYS.omo, us:false},
+    {n:"中国 1 年期国债", v:KEYS.cgb1, us:false}
+  ].sort(function(a,b){ return b.v - a.v; });
+  var W = 540, H = 330, x0 = 146, x1 = 470, top = 26, rowh = 52;
+  var maxV = Math.max.apply(null, items.map(function(x){ return x.v; })) * 1.12;
+  var a = [];
+  a.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="中美利率水平对照">');
+  var base = top + items.length * rowh - 18;
+  for(var g = 0; g <= maxV; g += 1){
+    var gx = x0 + (g / maxV) * (x1 - x0);
+    a.push('<line x1="' + gx + '" y1="' + (top - 10) + '" x2="' + gx + '" y2="' + base + '" stroke="' + C_GRID + '" stroke-width="1"/>');
+    a.push('<text x="' + gx + '" y="' + (base + 20) + '" text-anchor="middle" class="ct">' + g.toFixed(0) + '%</text>');
+  }
+  items.forEach(function(it, i){
+    var y = top + i * rowh;
+    var bw = (it.v / maxV) * (x1 - x0);
+    var col = it.us ? C_US : C_CN;
+    a.push('<text x="' + (x0 - 12) + '" y="' + (y + 17) + '" text-anchor="end" class="cl">' + it.n + '</text>');
+    a.push('<rect x="' + x0 + '" y="' + (y + 2) + '" width="' + Math.max(bw, 2) + '" height="22" rx="4" fill="' + col + '"/>');
+    a.push('<text x="' + (x0 + bw + 10) + '" y="' + (y + 18) + '" class="cv" fill="' + col + '">' + fmt(it.v) + '%</text>');
+  });
+  a.push('</svg>');
+  return a.join("");
+}
+
+/* ---------- 图 3：中美利差 ---------- */
+function svgSpread(){
+  var d = derive();
+  var items = [
+    {n:"政策利率口径", s:"中国 OMO − 美国 FFR", v:d.spreadPol},
+    {n:"10 年期口径", s:"中债 10Y − 美债 10Y", v:d.spread10y}
+  ];
+  var W = 540, H = 360, zeroY = 112, full = 142;
+  var maxAbs = Math.max(100, Math.max.apply(null, items.map(function(x){ return Math.abs(x.v); })) * 1.25);
+  var a = [];
+  a.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="中美利差">');
+  a.push('<line x1="52" y1="' + zeroY + '" x2="' + (W - 44) + '" y2="' + zeroY + '" stroke="#B9B2A6" stroke-width="1.4"/>');
+  a.push('<text x="' + (W - 44) + '" y="' + (zeroY - 10) + '" text-anchor="end" class="ct">0 bp（持平）</text>');
+  items.forEach(function(it, i){
+    var cx = 165 + i * 205;
+    var h = Math.max((Math.abs(it.v) / maxAbs) * full, 3);
+    var col = it.v < 0 ? C_AMBER : C_CN;
+    var y = it.v < 0 ? zeroY : zeroY - h;
+    a.push('<rect x="' + (cx - 56) + '" y="' + y + '" width="112" height="' + h + '" rx="5" fill="' + col + '" fill-opacity="0.9"/>');
+    var ty = it.v < 0 ? zeroY + h + 26 : zeroY - h - 12;
+    a.push('<text x="' + cx + '" y="' + ty + '" text-anchor="middle" class="cbig" fill="' + col + '">' + fmt(it.v, 0) + ' bp</text>');
+    a.push('<text x="' + cx + '" y="' + (zeroY + full + 46) + '" text-anchor="middle" class="cl">' + it.n + '</text>');
+    a.push('<text x="' + cx + '" y="' + (zeroY + full + 66) + '" text-anchor="middle" class="ct2">' + it.s + '</text>');
+  });
+  a.push('</svg>');
+  return a.join("");
+}
+
+/* ---------- 图 4：收益率曲线 ---------- */
+function svgYield(){
+  var K = KEYS;
+  var pts = ["政策利率", "1 年", "10 年"];
+  var cn = [K.omo, K.cgb1, K.cgb10];
+  var us = [K.ffr, null, K.ust10];
+  var W = 540, H = 330, x0 = 62, x1 = 470, y0 = 40, y1 = 248;
+  var ymax = Math.max(K.ust10, K.cgb10, K.ffr, K.omo) * 1.22;
+  function X(i){ return x0 + (i / (pts.length - 1)) * (x1 - x0); }
+  function Y(v){ return y1 - (v / ymax) * (y1 - y0); }
+  var a = [];
+  a.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="收益率曲线">');
+  for(var v = 0; v <= ymax + 0.001; v += 1){
+    var yy = Y(v);
+    a.push('<line x1="' + x0 + '" y1="' + yy + '" x2="' + x1 + '" y2="' + yy + '" stroke="' + C_GRID + '" stroke-width="1"/>');
+    a.push('<text x="' + (x0 - 12) + '" y="' + (yy + 4) + '" text-anchor="end" class="ct">' + v.toFixed(0) + '%</text>');
+  }
+  a.push('<line x1="' + x0 + '" y1="' + y1 + '" x2="' + x1 + '" y2="' + y1 + '" stroke="#D3CDC2" stroke-width="1"/>');
+  pts.forEach(function(p, i){
+    a.push('<text x="' + X(i) + '" y="' + (y1 + 24) + '" text-anchor="middle" class="ct">' + p + '</text>');
+  });
+  a.push('<polyline fill="none" stroke="' + C_CN + '" stroke-width="2.4" stroke-linejoin="round" points="'
+    + cn.map(function(val, i){ return X(i) + ',' + Y(val); }).join(" ") + '"/>');
+  cn.forEach(function(val, i){
+    a.push('<circle cx="' + X(i) + '" cy="' + Y(val) + '" r="4" fill="' + C_CN + '"/>');
+    a.push('<text x="' + X(i) + '" y="' + (Y(val) - 12) + '" text-anchor="middle" class="cv" fill="' + C_CN + '">' + fmt(val) + '%</text>');
+  });
+  var usPts = [];
+  [0, 2].forEach(function(i){ usPts.push(X(i) + ',' + Y(us[i])); });
+  a.push('<polyline fill="none" stroke="' + C_US + '" stroke-width="2.4" stroke-dasharray="7 5" stroke-linejoin="round" points="' + usPts.join(" ") + '"/>');
+  [0, 2].forEach(function(i){
+    a.push('<circle cx="' + X(i) + '" cy="' + Y(us[i]) + '" r="4" fill="' + C_US + '"/>');
+    a.push('<text x="' + X(i) + '" y="' + (Y(us[i]) - 12) + '" text-anchor="middle" class="cv" fill="' + C_US + '">' + fmt(us[i]) + '%</text>');
+  });
+  a.push('<rect x="' + x0 + '" y="' + (y1 + 46) + '" width="14" height="4" rx="2" fill="' + C_CN + '"/>');
+  a.push('<text x="' + (x0 + 20) + '" y="' + (y1 + 51) + '" class="ct">中国</text>');
+  a.push('<rect x="' + (x0 + 82) + '" y="' + (y1 + 46) + '" width="14" height="4" rx="2" fill="' + C_US + '"/>');
+  a.push('<text x="' + (x0 + 102) + '" y="' + (y1 + 51) + '" class="ct">美国（无 1 年期 OMO 对标口径，仅两点连线）</text>');
+  a.push('</svg>');
+  return a.join("");
+}
+
+/* ---------- 图 5：利率变动与债券持有回报率 ---------- */
+function bondPrice(n, c, y){
+  if(n <= 0) return 100;
+  var p = 0, r = 1 + y / 100;
+  for(var t = 1; t <= n; t++) p += c / Math.pow(r, t);
+  p += 100 / Math.pow(r, n);
+  return p;
+}
+function holdReturn(n, y0, dy){
+  var c = y0;
+  var P0 = bondPrice(n, c, y0);
+  var P1 = bondPrice(n - 1, c, y0 + dy);
+  return ((c + P1) / P0 - 1) * 100;
+}
+function svgDuration(){
+  var y0 = KEYS.cgb10;
+  var terms = [2, 5, 10];
+  var cols = ["#C6CDD5", "#7E8B97", C_INK];
+  var dys = [];
+  for(var d = -2; d <= 2.001; d += 0.25) dys.push(Math.round(d * 100) / 100);
+  var series = terms.map(function(n){
+    return dys.map(function(dy){ return {dy:dy, r:holdReturn(n, y0, dy)}; });
+  });
+  var allR = [];
+  series.forEach(function(s){ s.forEach(function(p){ allR.push(p.r); }); });
+  var rmin = Math.min.apply(null, allR), rmax = Math.max.apply(null, allR);
+  var pad = Math.max((rmax - rmin) * 0.12, 1);
+  rmin -= pad; rmax += pad;
+  var W = 540, H = 340, x0 = 66, x1 = 500, y0p = 40, y1p = 244;
+  function X(dy){ return x0 + ((dy + 2) / 4) * (x1 - x0); }
+  function Y(r){ return y1p - ((r - rmin) / (rmax - rmin)) * (y1p - y0p); }
+  var a = [];
+  a.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="利率变动与债券回报率">');
+  var step = (rmax - rmin) > 30 ? 10 : 5;
+  for(var rv = Math.ceil(rmin / step) * step; rv <= rmax; rv += step){
+    var yy = Y(rv);
+    a.push('<line x1="' + x0 + '" y1="' + yy + '" x2="' + x1 + '" y2="' + yy + '" stroke="' + C_GRID + '" stroke-width="1"/>');
+    a.push('<text x="' + (x0 - 10) + '" y="' + (yy + 4) + '" text-anchor="end" class="ct">' + rv.toFixed(0) + '%</text>');
+  }
+  a.push('<line x1="' + x0 + '" y1="' + Y(0) + '" x2="' + x1 + '" y2="' + Y(0) + '" stroke="#C9C2B6" stroke-width="1.2" stroke-dasharray="5 4"/>');
+  a.push('<line x1="' + X(0) + '" y1="' + y0p + '" x2="' + X(0) + '" y2="' + y1p + '" stroke="#C9C2B6" stroke-width="1.2" stroke-dasharray="5 4"/>');
+  [-2, -1, 0, 1, 2].forEach(function(d){
+    a.push('<text x="' + X(d) + '" y="' + (y1p + 22) + '" text-anchor="middle" class="ct">' + (d > 0 ? '+' : '') + d + '%</text>');
+  });
+  a.push('<text x="' + ((x0 + x1) / 2) + '" y="' + (y1p + 44) + '" text-anchor="middle" class="ct">市场利率变动（百分点）</text>');
+  series.forEach(function(s, si){
+    a.push('<polyline fill="none" stroke="' + cols[si] + '" stroke-width="' + (si === 2 ? 2.6 : 2) + '" stroke-linejoin="round" points="'
+      + s.map(function(p){ return X(p.dy) + ',' + Y(p.r); }).join(" ") + '"/>');
+    var at2 = s[s.length - 1];
+    a.push('<text x="' + (X(2) - 6) + '" y="' + (Y(at2.r) - 9) + '" text-anchor="end" class="cv" fill="' + cols[si] + '">'
+      + terms[si] + ' 年期 ' + fmt(at2.r, 1) + '%</text>');
+  });
+  a.push('<text x="' + x0 + '" y="' + (y1p + 66) + '" class="ct2">示例债券：票面利率＝当前 10 年期国债收益率 ' + fmt(y0) + '%，平价发行，持有 1 年</text>');
+  a.push('</svg>');
+  return a.join("");
+}
+
+/* ---------- 传导链流程图 ---------- */
+function svgFlow(){
+  var K = KEYS;
+  var nodes = [
+    {t:"① 政策利率", s:"OMO 7 天逆回购", v:fmt(K.omo) + "%", on:false},
+    {t:"② 货币市场", s:"DR007", v:"走廊之内", on:false},
+    {t:"③ LPR 报价", s:"报价行加点", v:(K.nim < 1.5 ? "受息差约束" : "尚可压缩"), on:K.nim < 1.5},
+    {t:"④ 信贷市场", s:"新发放贷款利率", v:fmt(K.lpr1) + "% 附近", on:false},
+    {t:"⑤ 债券市场", s:"10 年期国债", v:fmt(K.cgb10) + "%", on:false}
+  ];
+  var n = nodes.length, nw = 196, W = 1180, H = 172;
+  var gap = (W - nw * n) / (n + 1);
+  var y = 40, h = 90;
+  var a = [];
+  a.push('<svg viewBox="0 0 ' + W + ' ' + H + '" class="chart" preserveAspectRatio="xMidYMid meet" role="img" aria-label="利率传导链">');
+  a.push('<defs><marker id="fl" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">'
+    + '<path d="M0,0 L8,3 L0,6 Z" fill="#B9B2A6"/></marker></defs>');
+  nodes.forEach(function(nd, i){
+    var x = gap + i * (nw + gap);
+    var stroke = nd.on ? C_AMBER : "#D3CDC2";
+    var fill = nd.on ? "#FAF3E4" : "#FBFAF7";
+    a.push('<rect x="' + x + '" y="' + y + '" width="' + nw + '" height="' + h + '" rx="12" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (nd.on ? 2 : 1) + '"/>');
+    a.push('<text x="' + (x + 16) + '" y="' + (y + 29) + '" class="cf1">' + nd.t + '</text>');
+    a.push('<text x="' + (x + 16) + '" y="' + (y + 51) + '" class="ct">' + nd.s + '</text>');
+    a.push('<text x="' + (x + 16) + '" y="' + (y + 76) + '" class="cf2" fill="' + (nd.on ? C_AMBER : C_INK) + '">' + nd.v + '</text>');
+    if(i < n - 1){
+      var ax = x + nw + 5, ax2 = x + nw + gap - 5;
+      a.push('<line x1="' + ax + '" y1="' + (y + h / 2) + '" x2="' + ax2 + '" y2="' + (y + h / 2) + '" stroke="#B9B2A6" stroke-width="1.6" marker-end="url(#fl)"/>');
+    }
+  });
+  a.push('</svg>');
+  return a.join("");
+}
+
+/* ---------- 公式 ---------- */
+var FORMULAS = [
+  { name:"费雪方程式", en:"Fisher Equation",
+    html:'i &nbsp;≈&nbsp; r &nbsp;+&nbsp; π<sup>e</sup>',
+    desc:"名义利率约等于实际利率加预期通货膨胀率。用预期通胀 πᵉ 得到事前实际利率；用已实现通胀 π 得到事后实际利率。",
+    calc:function(){ var d = derive();
+      return "代入当前：i = <b>" + fmt(KEYS.omo) + "%</b>（OMO 7 天），π = <b>" + fmt(KEYS.cpi)
+        + "%</b>（CPI 同比） → 政策端实际利率 r ≈ <b>" + fmt(d.realPolicy) + "%</b>；信贷端 i = <b>"
+        + fmt(KEYS.lpr1) + "%</b> → r ≈ <b>" + fmt(d.realLend) + "%</b>"; } },
+
+  { name:"利率平价条件", en:"Interest Rate Parity",
+    html:'i<sub>本</sub> &nbsp;=&nbsp; i<sub>外</sub> &nbsp;−&nbsp; <span class="frac">'
+       + '<span class="fnum">E<sup>e</sup><sub>t+1</sub> &minus; E<sub>t</sub></span>'
+       + '<span class="fden">E<sub>t</sub></span></span>',
+    desc:"从资本市场无套利出发：本国利率＝外国利率减去本币的预期升值率。倒挂（本币利率低于外币）意味着市场预期本币升值，或存在风险溢价与管制摩擦。",
+    calc:function(){ var d = derive();
+      return "代入当前：i<sub>本</sub> = <b>" + fmt(KEYS.omo) + "%</b>（OMO），i<sub>外</sub> = <b>"
+        + fmt(KEYS.ffr) + "%</b>（FFR） → 政策口径利差 <b>" + fmt(d.spreadPol,0) + " bp</b>；10 年期口径 <b>"
+        + fmt(d.spread10y,0) + " bp</b>。"; } },
+
+  { name:"期限利差", en:"Term Spread",
+    html:'TS &nbsp;=&nbsp; i<sub>10Y</sub> &nbsp;−&nbsp; i<sub>1Y</sub>',
+    desc:"长期国债收益率减短期国债收益率。为正叫陡峭，为负叫倒挂。按市场预期理论，长期利率是未来短期利率预期的平均值；流动性偏好理论则要再加一层流动性溢价。",
+    calc:function(){ var d = derive();
+      return "代入当前：i<sub>10Y</sub> = <b>" + fmt(KEYS.cgb10) + "%</b>，i<sub>1Y</sub> = <b>"
+        + fmt(KEYS.cgb1) + "%</b> → TS = <b>" + fmt(d.termSpread,0) + " bp</b>"; } },
+
+  { name:"中美利差", en:"Spread",
+    html:'Spread &nbsp;=&nbsp; i<sub>中</sub> &nbsp;−&nbsp; i<sub>美</sub>',
+    desc:"同一口径下中国利率减美国利率。为负即中国利率低于美国，属于「倒挂」，是汇率与跨境资本流动分析的核心变量。",
+    calc:function(){ var a = r2((KEYS.omo - KEYS.ffr) * 100), b = r2((KEYS.cgb10 - KEYS.ust10) * 100);
+      return "政策口径：<b>" + fmt(a,0) + " bp</b>　｜　10 年期口径：<b>" + fmt(b,0) + " bp</b>"; } },
+
+  { name:"麦考利久期", en:"Macaulay Duration",
+    html:'D &nbsp;=&nbsp; <span style="font-size:.85em">Σ</span><sub>t=1</sub><sup>n</sup> &nbsp;t &nbsp;·&nbsp; '
+       + '<span class="frac"><span class="fnum">C<sub>t</sub> / (1 + i)<sup>t</sup></span>'
+       + '<span class="fden">P</span></span>',
+    desc:"以现金流现值为权重的加权平均到期时间，衡量债券价格对利率变动的敏感度。利率变动时，久期越长，债券回报率波动越大——正是课件里「利率上升、债券价格下跌、资本利得为负」的量化来源。",
+    calc:function(){ return "见图 5：同样幅度的利率变动，10 年期债券的回报率跌幅明显大于 2 年期。"; } }
+];
+
+function renderFormulas(){
+  return FORMULAS.map(function(f){
+    return '<div class="fcard">'
+      + '<div class="fname">' + f.name + '<i>' + f.en + '</i></div>'
+      + '<div class="formula">' + f.html + '</div>'
+      + '<div class="fdesc">' + f.desc + '</div>'
+      + '<div class="fcalc">' + f.calc() + '</div>'
+      + '</div>';
+  }).join("");
+}
+
+/* ---------- 参数控件 ---------- */
+function buildSliders(){
+  var box = document.getElementById("sliders");
+  box.innerHTML = PARAMS.map(function(p){
+    return '<div class="slider">'
+      + '<div class="srow"><span class="slabel">' + p.label + '</span>'
+      + '<span class="snumwrap"><input type="number" class="snum" id="n_' + p.k + '" min="' + p.min
+      + '" max="' + p.max + '" step="' + p.step + '" value="' + p.val + '">'
+      + '<span class="sunit">' + p.unit + '</span></span></div>'
+      + '<input type="range" id="s_' + p.k + '" min="' + p.min + '" max="' + p.max
+      + '" step="' + p.step + '" value="' + p.val + '">'
+      + '</div>';
+  }).join("");
+
+  PARAMS.forEach(function(p){
+    var rng = document.getElementById("s_" + p.k);
+    var num = document.getElementById("n_" + p.k);
+    var dec = decOf(p.step);
+
+    rng.addEventListener("input", function(){
+      var v = parseFloat(rng.value);
+      if(isNaN(v)) return;
+      KEYS[p.k] = v; num.value = v.toFixed(dec); render();
+    });
+    num.addEventListener("input", function(){
+      var v = parseFloat(num.value);
+      if(isNaN(v)) return;
+      KEYS[p.k] = v; rng.value = v; render();
+    });
+    num.addEventListener("blur", function(){
+      var v = parseFloat(num.value);
+      if(isNaN(v)) v = p.val;
+      if(v < p.min) v = p.min;
+      if(v > p.max) v = p.max;
+      v = Math.round(v / p.step) * p.step;
+      v = Math.round(v * 1000) / 1000;
+      KEYS[p.k] = v; rng.value = v; num.value = v.toFixed(dec); render();
+    });
+  });
+}
+
+/* ---------- 渲染 ---------- */
+function metric(h,v,u,n,cls){
+  return '<div class="metric ' + (cls || "") + '"><div class="mh">' + h + '</div>'
+    + '<div class="mv">' + v + '<small>' + u + '</small></div>'
+    + '<div class="mnote">' + n + '</div></div>';
+}
+
+function render(){
+  var d = derive(), R = evalRules(d);
+
+  document.getElementById("flow").innerHTML = svgFlow();
+
+  document.getElementById("rules").innerHTML = R.map(function(r){
+    return '<div class="rule' + (r.on ? " on" : "") + '">'
+      + '<span class="rtag">' + (r.on ? "命中" : "未命中") + '</span>'
+      + '<span class="rname">' + r.id + '</span>'
+      + '<span class="rtxt">' + r.txt + '</span></div>';
+  }).join("");
+
+  document.getElementById("metrics").innerHTML =
+      metric("政策端实际利率", fmt(d.realPolicy), "%", "OMO 减 CPI（费雪方程）", d.realPolicy < 0.5 ? "warn" : "")
+    + metric("信贷端实际成本", fmt(d.realLend), "%", "1Y LPR 减 CPI", d.realLend < 0.5 ? "warn" : "")
+    + metric("10Y−1Y 期限利差", fmt(d.termSpread,0), "bp", "曲线陡平", d.termSpread < 50 ? "warn" : "")
+    + metric("中美利差 · 政策口径", fmt(d.spreadPol,0), "bp", "中国 OMO 减美国 FFR", d.spreadPol < -150 ? "bad" : "")
+    + metric("中美利差 · 10 年期", fmt(d.spread10y,0), "bp", "中美国债 10Y 之差", d.spread10y < -150 ? "bad" : "")
+    + metric("净息差", fmt(KEYS.nim), "%", KEYS.nim < 1.5 ? "已处历史低位" : "", KEYS.nim < 1.5 ? "bad" : "");
+
+  document.getElementById("cCorridor").innerHTML = svgCorridor();
+  document.getElementById("cLevels").innerHTML   = svgLevels();
+  document.getElementById("cSpread").innerHTML   = svgSpread();
+  document.getElementById("cYield").innerHTML    = svgYield();
+  document.getElementById("cDur").innerHTML      = svgDuration();
+  document.getElementById("formulas").innerHTML  = renderFormulas();
+
+  var hit = R.filter(function(x){ return x.on; }).map(function(x){ return x.id; });
+  var badge = document.getElementById("tabBadge");
+  if(badge){
+    badge.textContent = hit.length + "/" + R.length;
+    badge.className = "badge" + (hit.length ? " hot" : "");
+  }
+  document.getElementById("airc").innerHTML =
+    "系统已算出 <b>" + hit.length + "</b> 条规则命中" + (hit.length ? "（" + hit.join("、") + "）" : "")
+    + "。点「生成解读」，AI 会依据课程框架把这些事实组织成五段式分析。";
+}
+
+/* ---------- AI ---------- */
+var SYS_PROMPT = [
+"你是货币金融学课程的助教，负责按课程口径解读利率现象。",
+"",
+"【输出格式】严格输出五段，每段以【段名】开头，不要输出任何其他内容：",
+"【现象】【理论】【机制】【含义】【局限】",
+"",
+"【课程框架（只可用这些理论）】",
+"1. 利率传导链：政策利率（OMO 7 天期逆回购）→ 货币市场 DR007（受利率走廊约束）→ LPR（报价行加点）→ 贷款利率 → 债券市场收益率。",
+"2. 利率走廊：上限 7 天期 SLF 利率、中枢 OMO 7 天期逆回购利率、下限超额准备金存款利率。",
+"3. 费雪方程：名义利率 ≈ 实际利率 + 预期通货膨胀率。区分事前实际利率与事后实际利率。",
+"4. 利率的期限结构三理论：市场预期理论（长期利率＝预期短期利率的平均值）、市场分割理论、流动性偏好理论（前两者基础上加流动性溢价）。",
+"5. 利率的风险结构：违约风险、流动性、税收差异。",
+"6. 利率平价：本国利率 = 外国利率 − 本国货币的预期升值率（从资本市场无套利出发，用于分析短期汇率）。",
+"7. 中国特殊性：信贷市场存在多重均衡利率，单一均衡利率分析在中国的适用性有限。",
+"",
+"【硬约束】",
+"- 只能使用【事实包】中给出的数值，绝对不得引入任何其他数字（包括不得自行推算新数字）。",
+"- 引用理论时必须使用上述课程术语，不要用外部学派的替代叫法。",
+"- 每段 2 到 4 句，语言平实，不要排比，不要空话。",
+"- 局限一段必须指出所用理论的假设在当下是否成立。"
+].join("\n");
+
+function buildUserPrompt(){
+  return "请解读以下利率事实。\n\n【事实包】\n" + JSON.stringify(buildFacts(), null, 2);
+}
+
+/* ---- 校验层：数值归一化匹配 ---- */
+function numKey(x){ return Number(x).toFixed(6); }
+
+function addNum(set, v){
+  if(typeof v !== "number" || !isFinite(v)) return;
+  var ax = Math.abs(v);
+  [v, ax, -ax].forEach(function(x){
+    set[numKey(x)] = 1;
+    for(var d = 0; d <= 3; d++) set[numKey(Number(x.toFixed(d)))] = 1;
+  });
+}
+
+function collectNumbers(o){
+  var set = {};
+  (function walk(v){
+    if(typeof v === "number"){
+      addNum(set, v);
+    } else if(typeof v === "string"){
+      var m = v.match(/(?<![A-Za-z0-9])-?\d+(?:\.\d+)?/g);
+      if(m) m.forEach(function(x){ addNum(set, Number(x)); });
+    } else if(v && typeof v === "object"){
+      Object.keys(v).forEach(function(k){ walk(v[k]); });
+    }
+  })(o);
+  [0,1,2,3,4,5,6,7,8,10,12,16,20,30,100,
+   2019,2020,2022,2024,2025,2026,2027,1998,1995,1993].forEach(function(x){ set[numKey(x)] = 1; });
+  return set;
+}
+
+var SEG_NAMES = ["现象","理论","机制","含义","局限"];
+
+function parseSegments(text){
+  var pos = [];
+  SEG_NAMES.forEach(function(n){
+    var i = text.indexOf("【" + n + "】");
+    if(i >= 0) pos.push({n:n, i:i});
+  });
+  if(pos.length < 2) return null;
+  pos.sort(function(a,b){ return a.i - b.i; });
+  var out = [];
+  for(var k = 0; k < pos.length; k++){
+    var start = pos[k].i + pos[k].n.length + 2;
+    var end = (k + 1 < pos.length) ? pos[k+1].i : text.length;
+    out.push({n:pos[k].n, t:text.slice(start, end).trim()});
+  }
+  return out;
+}
+
+function renderSegments(text, allowed){
+  var segs = parseSegments(text);
+  var box = document.getElementById("aiout");
+  function hl(s){
+    return String(s).replace(/(?<![A-Za-z0-9])-?\d+(?:\.\d+)?/g, function(m){
+      return allowed[numKey(Number(m))] ? '<span class="num-ok">' + m + '</span>'
+                                        : '<span class="num-bad">' + m + '</span>';
+    });
+  }
+  if(!segs){
+    box.innerHTML = '<div class="seg"><div class="sb">' + hl(text) + '</div></div>';
+    return;
+  }
+  box.innerHTML = segs.map(function(s){
+    return '<div class="seg' + (s.n === "局限" ? " lim" : "") + '">'
+      + '<div class="sh">' + s.n + '</div><div class="sb">' + hl(s.t) + '</div></div>';
+  }).join("");
+}
+
+function verify(text){
+  var allowed = collectNumbers(buildFacts());
+  var all = String(text).match(/(?<![A-Za-z0-9])-?\d+(?:\.\d+)?/g) || [];
+  var bad = [], seen = {};
+  all.forEach(function(m){
+    var k = numKey(Number(m));
+    if(!allowed[k] && !seen[k]){ seen[k] = 1; bad.push(m); }
+  });
+  var bar = document.getElementById("vbar");
+  bar.style.display = "block";
+  if(bad.length === 0){
+    bar.innerHTML = '校验通过：<span class="ok">输出中出现的全部数值均可追溯至事实包</span>'
+      + '（共核对 ' + all.length + ' 处数字）';
+  } else {
+    bar.innerHTML = '校验告警：<span class="bad">发现 ' + bad.length + ' 处无法追溯的数值</span>'
+      + '（' + bad.join("、") + '）——已用深底标出，请回查原始数据后修改。';
+  }
+}
+
+function showErr(msg){
+  var e = document.getElementById("err");
+  e.style.display = "block"; e.textContent = msg;
+}
+function clearErr(){
+  var e = document.getElementById("err");
+  e.style.display = "none"; e.textContent = "";
+}
+
+function offlineText(){
+  var d = derive();
+  return "【现象】基准情形下，公开市场 7 天期逆回购利率为 " + fmt(KEYS.omo)
+  + "%，1 年期 LPR 为 " + fmt(KEYS.lpr1) + "%，5 年期以上 LPR 为 " + fmt(KEYS.lpr5)
+  + "%，10 年期国债收益率为 " + fmt(KEYS.cgb10) + "%。"
+  + "【理论】这属于利率传导机制的检验，同时需要用费雪方程判断实际利率水平。"
+  + "【机制】沿传导链逐环看：政策利率未动，DR007 仍在利率走廊之内，"
+  + "但商业银行净息差仅 " + fmt(KEYS.nim) + "%，报价行压缩加点的空间被负债成本锁住，"
+  + "传导在 LPR 报价环节收敛。按费雪方程，CPI 同比 " + fmt(KEYS.cpi)
+  + "% 对应的信贷端实际成本约 " + fmt(d.realLend) + "%。"
+  + "【含义】政策按兵不动并不等于政策失效，而是政策意图已体现在存量利率水平上，"
+  + "继续下压的边际空间受制于银行体系的风险补偿约束。"
+  + "【局限】上述均衡利率分析以发达的债券市场为前提，在中国不完全适用——"
+  + "信贷市场存在多重均衡利率，单一政策利率无法刻画全社会的资金价格。"
+  + "本段为离线示例，用于无网络时演示；接入模型后由 AI 依据事实包实时生成。";
+}
+
+function runOffline(){
+  clearErr();
+  var txt = offlineText();
+  renderSegments(txt, collectNumbers(buildFacts()));
+  verify(txt);
+}
+
+function getCfgVal(id){ return document.getElementById(id).value.trim(); }
+
+async function runAI(){
+  clearErr();
+  var cfg = readCfg();
+  if(!cfg.key){
+    document.getElementById("mask").classList.add("show");
+    showErr("尚未配置 API Key。可先点「看离线示例」演示流程。");
+    return;
+  }
+  var btn = document.getElementById("btnRun");
+  btn.disabled = true; btn.textContent = "生成中…";
+  document.getElementById("aiout").innerHTML = "";
+  document.getElementById("vbar").style.display = "none";
+
+  var url = cfg.base.replace(/\/+$/, "") + "/chat/completions";
+  try{
+    var res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + cfg.key
+      },
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          {role:"system", content: SYS_PROMPT},
+          {role:"user", content: buildUserPrompt()}
+        ],
+        temperature: 0.4,
+        stream: false
+      })
+    });
+    if(!res.ok){
+      var t = await res.text();
+      throw new Error("接口返回 " + res.status + "：" + t.slice(0, 220));
+    }
+    var data = await res.json();
+    var txt = "";
+    try{ txt = data.choices[0].message.content; }catch(e){ txt = ""; }
+    if(!txt) throw new Error("接口未返回可解析的内容：" + JSON.stringify(data).slice(0,220));
+    renderSegments(txt, collectNumbers(buildFacts()));
+    verify(txt);
+  }catch(ex){
+    var m = String(ex && ex.message ? ex.message : ex);
+    if(m.indexOf("Failed to fetch") >= 0 || m.indexOf("NetworkError") >= 0 || m.indexOf("Load failed") >= 0){
+      showErr("请求发不出去，通常是浏览器跨域（CORS）限制。两个办法："
+        + "① 先点「看离线示例」完成演示；"
+        + "② 若需要现场实时调用，我可以给你配一个几行的本地转发，把请求从本机发出。"
+        + "原始报错：" + m);
+    } else {
+      showErr("调用失败：" + m);
+    }
+  }finally{
+    btn.disabled = false; btn.textContent = "生成解读";
+  }
+}
+
+function initCfgUI(){
+  var cfg = readCfg();
+  document.getElementById("cfgBase").value  = cfg.base;
+  document.getElementById("cfgModel").value = cfg.model;
+  document.getElementById("cfgKey").value   = "";
+  document.getElementById("cfgKey").placeholder = BUILTIN_KEY ? "已内置 Key，留空即用内置" : "粘贴你的 API Key";
+  document.getElementById("cfgDot").className = "dot" + (cfg.key ? " on" : "");
+}
+function markDot(){
+  var cfg = readCfg();
+  document.getElementById("cfgDot").className = "dot" + (cfg.key ? " on" : "");
+}
+
+document.getElementById("btnCfg").addEventListener("click", function(){
+  initCfgUI();
+  document.getElementById("mask").classList.add("show");
+});
+document.getElementById("btnWide").addEventListener("click", function(){
+  document.body.classList.toggle("wide");
+  this.textContent = document.body.classList.contains("wide") ? "还原" : "宽屏";
+});
+document.getElementById("btnSave").addEventListener("click", function(){
+  var k = getCfgVal("cfgKey");
+  if(k){
+    saveCfg({ base: getCfgVal("cfgBase") || BUILTIN_BASE,
+              model: getCfgVal("cfgModel") || BUILTIN_MODEL,
+              key: k });
+  } else {
+    clearCfg();
+  }
+  markDot();
+  document.getElementById("mask").classList.remove("show");
+});
+document.getElementById("btnClear").addEventListener("click", function(){
+  clearCfg();
+  initCfgUI();
+  markDot();
+});
+document.getElementById("mask").addEventListener("click", function(e){
+  if(e.target === this) this.classList.remove("show");
+});
+document.getElementById("btnRun").addEventListener("click", runAI);
+document.getElementById("btnOff").addEventListener("click", runOffline);
+
+/* ---------- 顶部 tab ---------- */
+var TAB_NAMES = ["diag","charts","formulas","ai"];
+
+function showTab(name){
+  if(TAB_NAMES.indexOf(name) < 0) name = "diag";
+  var i, list = document.querySelectorAll(".tab");
+  for(i = 0; i < list.length; i++){
+    list[i].classList.toggle("active", list[i].getAttribute("data-tab") === name);
+  }
+  var panes = document.querySelectorAll(".tabpane");
+  for(i = 0; i < panes.length; i++){
+    panes[i].classList.toggle("show", panes[i].getAttribute("data-pane") === name);
+  }
+}
+
+(function initTabs(){
+  var list = document.querySelectorAll(".tab");
+  for(var i = 0; i < list.length; i++){
+    (function(btn){
+      btn.addEventListener("click", function(){ showTab(btn.getAttribute("data-tab")); });
+    })(list[i]);
+  }
+  var qm = location.search.match(/[?&]tab=([a-z]+)/);
+  var hm = (location.hash || "").replace(/^#/, "");
+  var start = "diag";
+  if(TAB_NAMES.indexOf(hm) >= 0) start = hm;
+  if(qm && TAB_NAMES.indexOf(qm[1]) >= 0) start = qm[1];
+  showTab(start);
+  if(location.search.indexOf("demo=1") >= 0){
+    runOffline();
+    if(!qm && !hm) showTab("ai");
+  }
+})();
+
+/* ---------- 演示提示条（可关闭，记住选择）---------- */
+(function initTip(){
+  var bar = document.getElementById("tipbar");
+  if(!bar) return;
+  try{ if(localStorage.getItem("rate_lab_tip") === "off") bar.classList.add("gone"); }catch(e){}
+  document.getElementById("tipX").addEventListener("click", function(){
+    bar.classList.add("gone");
+    try{ localStorage.setItem("rate_lab_tip", "off"); }catch(e){}
+  });
+})();
+
+buildSliders();
+render();
+initCfgUI();
+</script>
+</body>
+</html>
